@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" name="viewport" content="width=device-width, user-scalable=no"/>
+    <title>Rock, Paper, Scissors</title>
+    <script src="//cdn.jsdelivr.net/npm/phaser@3.11.0/dist/phaser.js"></script>
+    <style type="text/css">
+        body {
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+
+<script type="text/javascript">
+    var config = {
+        type: Phaser.AUTO,
+        width: 800,
+        height: 600,
+        physics: {
+          default: 'arcade',
+          arcade: {
+            gravity: {y: 300},
+            debug: false
+          }
+        },
+        scene: {
+            preload: preload,
+            create: create,
+            update: update
+        }
+    };
+
+    var game = new Phaser.Game(config);
+    var rockKey;
+    var paperKey;
+    var scissorsKey;
+    //var startButton;
+    //var background;
+    var rock1;
+    var rock2;
+    var paper1;
+    var paper2
+    var scissors1;
+    var scissors2;
+    var options = ['rock', 'paper', 'scissors'];
+    var playerPoints = 0;
+    var playerChoice;
+    var playerChoiceImage;
+    var computerPoints = 0;
+    var computerChoice;
+    var computerChoiceImage;
+    var titleText;
+    var startButtonText;
+    var playerNameText;
+    var playerPointsText;
+    var computerNameText;
+    var computerPointsText;
+    var promptText;
+    var legendText;
+    var resultText;
+
+    function preload()
+    {
+      this.load.image('background', 'assets/background.png');
+      this.load.image('button', 'assets/button.png');
+      this.load.image('rock', 'assets/rock.png');
+      this.load.image('paper', 'assets/paper.png');
+      this.load.image('scissors', 'assets/scissors.png');
+    }
+
+    function create()
+    {
+      background = this.add.image(400, 300, 'background');
+      startButton = this.add.image(400, 500, 'button').setScale(0.35);
+      rock1 = this.add.image(170, 300, 'rock').setScale(0.5);
+      paper1 = this.add.image(400, 300, 'paper').setScale(0.16);
+      scissors1 = this.add.image(600, 300, 'scissors').setScale(0.65);
+      rock2 = this.add.image(170, 300, 'rock').setScale(0.5);
+      paper2 = this.add.image(400, 300, 'paper').setScale(0.16);
+      scissors2 = this.add.image(600, 300, 'scissors').setScale(0.65);
+
+      titleText = this.add.text(60, 80, 'Rock, Paper, Scissors !', {font: '58px bold', fill: '#000', align: 'center'});
+      startButtonText = this.add.text(345, 480, 'START', {font: '32px bold', fill: '#000'});
+      promptText = this.add.text(70, 20, 'Rock, Paper, or Scissors ?', {font: '50px bold', fill: '#000', align: 'center'});
+      legendText = this.add.text(150, 90, '("R"=rock, "P"=paper, "S"=scissors)', {font: '25px bold', fill: '#000', align: 'center'});
+      computerPointsText = this.add.text(90, 550, 'Computer: ' + computerPoints, {font: '25px bold', fill: '#000'});
+      playerPointsText = this.add.text(540, 550, 'Player: ' + playerPoints, {font: '25px bold', fill: '#000'});
+      resultText = this.add.text(250, 50, '', {font: '64px bold', fill: '#000', align: 'center'});
+      promptText.visible = false;
+      legendText.visible = false;
+      playerPointsText.visible = false;
+      computerPointsText.visible = false;
+
+      rockKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R);
+      paperKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.P);
+      scissorsKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S);
+
+      startButton.setInteractive({ useHandCursor: true });
+      startButton.on('pointerdown', startGame);
+    }
+
+
+    function update()
+    {
+      if (!gameOver()) {
+        if (Phaser.Input.Keyboard.JustDown(rockKey)) {
+          if (playerChoiceImage != undefined) {
+            playerChoiceImage.visible = false;
+          }
+          playerChoice = 'rock';
+          playerChoiceImage = rock1;
+          //console.log(playerChoice);
+          getComputerChoice();
+        }
+        else if (Phaser.Input.Keyboard.JustDown(paperKey)) {
+          if (playerChoiceImage != undefined) {
+            playerChoiceImage.visible = false;
+          }
+          playerChoice = 'paper';
+          playerChoiceImage = paper1;
+          //console.log(playerChoice);
+          getComputerChoice();
+        }
+        else if (Phaser.Input.Keyboard.JustDown(scissorsKey)) {
+          if (playerChoiceImage != undefined) {
+            playerChoiceImage.visible = false;
+          }
+          playerChoice = 'scissors';
+          playerChoiceImage = scissors1;
+          //console.log(playerChoice);
+          getComputerChoice();
+        }
+      }
+
+      else {
+        endGame();
+      }
+    }
+
+    function startGame()
+    {
+      loadGameScene();
+      promptText.visible = true;
+      legendText.visible = true;
+    }
+
+    function loadGameScene()
+    {
+      // get rid of title screen objects
+      titleText.visible = false;
+      rock1.visible = false;
+      paper1.visible = false;
+      scissors1.visible = false;
+      rock2.visible = false;
+      paper2.visible = false;
+      scissors2.visible = false;
+      startButton.visible = false;
+      startButtonText.visible = false;
+
+      // display points
+      computerPointsText.visible = true;
+      playerPointsText.visible = true;
+    }
+
+    function getComputerChoice()
+    {
+      if (computerChoiceImage != undefined) {
+        computerChoiceImage.visible = false;
+      }
+      computerChoice = options[Math.floor(Math.random() * options.length)];
+      if (computerChoice === 'rock') {
+        computerChoiceImage = rock2;
+      }
+      else if (computerChoice === 'paper') {
+        computerChoiceImage = paper2;
+      }
+      else if (computerChoice === 'scissors') {
+        computerChoiceImage = scissors2;
+      }
+
+      determineWinner();
+    }
+
+
+    function determineWinner(/*playerChoice, computerChoice*/)
+    {
+      computerChoiceImage.x = 170;
+      computerChoiceImage.y = 300;
+      playerChoiceImage.x = 600;
+      playerChoiceImage.y = 300;
+      computerChoiceImage.visible = true;
+      playerChoiceImage.visible = true;
+
+      if (computerChoice === playerChoice)
+      {
+        console.log("\nComputer: " + computerChoice);
+        console.log("     You: " + playerChoice);
+        console.log("\nIt was a draw! Try again!\n");
+        console.log("-----------------------------------");
+      }
+      else if ((playerChoice === 'rock' && computerChoice === 'scissors') ||
+               (playerChoice === 'scissors' && computerChoice === 'paper') ||
+               (playerChoice === 'paper' && computerChoice === 'rock'))
+      {
+        playerPoints += 1;
+        playerPointsText.setText('Player: ' + playerPoints);
+      }
+      else if ((computerChoice === 'rock' && playerChoice === 'scissors') ||
+               (computerChoice === 'scissors' && playerChoice === 'paper') ||
+               (computerChoice === 'paper' && playerChoice === 'rock'))
+      {
+        computerPoints += 1;
+        computerPointsText.setText('Computer: ' + computerPoints);
+      }
+    }
+
+    function gameOver()
+    {
+      return playerPoints + computerPoints === 3;
+    }
+
+    function endGame()
+    {
+      promptText.visible = false;
+      legendText.visible = false;
+
+      if (playerPoints > computerPoints) {
+        resultText.setText("You Won !");
+      }
+      else {
+        resultText.setText("You Lost !");
+      }
+
+      startButton.visible = true;
+      startButtonText.setText("AGAIN");
+      startButtonText.visible = true;
+      startButton.setInteractive({ useHandCursor: true });
+      startButton.on('pointerdown', restartGame);
+    }
+
+    function restartGame() {
+      resultText.setText('');
+      playerChoiceImage.visible = false;
+      computerChoiceImage.visible = false;
+      playerPoints = 0;
+      computerPoints = 0;
+      playerPointsText.setText('Player: ' + playerPoints);
+      computerPointsText.setText('Computer: ' + computerPoints);
+      startGame();
+    }
+
+</script>
+</html>
